@@ -1,6 +1,6 @@
--- Database creation
-	CREATE DATABASE disaster_assistace;
-	USE disaster_assistace;
+-- Create Database
+CREATE DATABASE disaster;
+USE disaster;
 
 -- Users Table
 CREATE TABLE Users (
@@ -10,88 +10,78 @@ CREATE TABLE Users (
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(200) NOT NULL
 );
--- Verification of users
-select * from users;
- 
 
 -- Resource Type Table
-CREATE TABLE resourcetype (
-    resource_id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE ResourceType (
+    resource_id INT AUTO_INCREMENT PRIMARY KEY,
     resource_name VARCHAR(30) UNIQUE
 );
 
--- SOME VALUES ARE INSERTED FOR RESOURCE TYPE
-insert into resourcetype(resource_name) 
-values("WATER"),("FOOD"),("MEDICINE"),("CLOTHING"),("SHELTER"),("FIRST AID KIT");
+-- Insert values into ResourceType
+INSERT INTO ResourceType(resource_name)
+VALUES ("WATER"), ("FOOD"), ("MEDICINE"), ("CLOTHING"), ("SHELTER"), ("FIRST AID KIT");
 
 -- Requests Table
-CREATE TABLE requests (
-    request_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,  
+CREATE TABLE Requests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
     victim_name VARCHAR(100),
-    resource_id INT, 
-     quantity INT,
-    priority ENUM("LOW", "HIGH", "MEDIUM", "CRITICAL"),
+    resource_id INT,
+    quantity INT,
+    priority ENUM("LOW", "MEDIUM", "HIGH", "CRITICAL"),
     location VARCHAR(100),
     additional_notes VARCHAR(100),
-    requested_date timestamp DEFAULT current_timestamp,
-    status ENUM("Pending", "Completed", "Processing") default "Pending",
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),  
-    FOREIGN KEY (resource_id) REFERENCES resourcetype(resource_id)  
+    requested_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM("Pending", "Processing", "Completed") DEFAULT "Pending",
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (resource_id) REFERENCES ResourceType(resource_id)
 );
 
--- Verification of request
-select * from requests;
-
--- Organizations table
-create table organizations(
-organization_id int primary key auto_increment,
-organization_name varchar(100),
-organization_type enum( 'NGO','Government','International','Medical','Educational','Private','Other'),
-contact_person varchar(100),
-cp_email varchar(100),
-cp_phone varchar(20),
-address varchar(150),
-organization_description varchar(200),
-website varchar(100)
+-- Organizations Table
+CREATE TABLE Organizations (
+    organization_id INT AUTO_INCREMENT PRIMARY KEY,
+    organization_name VARCHAR(100),
+    organization_type ENUM('NGO', 'Government', 'International', 'Medical', 'Educational', 'Private', 'Other'),
+    contact_person VARCHAR(100),
+    cp_email VARCHAR(100),
+    cp_phone VARCHAR(20),
+    address VARCHAR(150),
+    organization_description VARCHAR(200),
+    website VARCHAR(100)
 );
 
-
-select * from organizations;
-
--- Donations table 
-create table donations(
-donation_id int primary key auto_increment,
-donar_name varchar(50),
-donar_email varchar(100),
-donar_phone varchar(20),
-donar_organization_name varchar(100),
-resource_id int,
-donation_type enum("WATER","FOOD","MEDICINE","CLOTHING","SHELTER","FIRST AID KIT","MONEY"),
-donation_amount int,
-donation_type_qty int,
-description varchar(100),
-status enum("Sent","Processed"),
-foreign key (resource_id) references resourcetype(resource_id)
+-- Donations Table
+CREATE TABLE Donations (
+    donation_id INT AUTO_INCREMENT PRIMARY KEY,
+    donar_name VARCHAR(50),
+    donar_email VARCHAR(100),
+    donar_phone VARCHAR(20),
+    donar_organization_name VARCHAR(100),
+    resource_id INT,
+    donation_type ENUM("WATER", "FOOD", "MEDICINE", "CLOTHING", "SHELTER", "FIRST AID KIT", "MONEY"),
+    donation_amount INT,
+    donation_type_qty INT,
+    description VARCHAR(100),
+    status ENUM("Sent", "Processed"),
+    FOREIGN KEY (resource_id) REFERENCES ResourceType(resource_id)
 );
 
--- Volunteer table
-create table volunteer(
-volunteer_id int primary key auto_increment,
-user_id int,
-vol_org varchar(100),
-skills varchar(100),
-availability enum("Full-time","Part-time","Weekends only","On-call"),
-vol_area varchar(100),
-status enum("Active","Inactive","Currently on mission"),
-emg_name varchar(100),
-emg_number varchar(20),
-foreign key (user_id) references Users(user_id)
+-- Volunteer Table
+CREATE TABLE Volunteer (
+    volunteer_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    vol_org VARCHAR(100),
+    skills VARCHAR(100),
+    availability ENUM("Full-time", "Part-time", "Weekends only", "On-call"),
+    vol_area VARCHAR(100),
+    status ENUM("Active", "Inactive", "Currently on mission"),
+    emg_name VARCHAR(100),
+    emg_number VARCHAR(20),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
- select *from volunteer;
- 
--- Vehicles table
-CREATE TABLE vehicles (
+
+-- Vehicles Table
+CREATE TABLE Vehicles (
     vehicle_id INT AUTO_INCREMENT PRIMARY KEY,
     vehicle_type ENUM('ambulance', 'truck', 'boat', 'helicopter', 'other') NOT NULL,
     registration_number VARCHAR(50) NOT NULL,
@@ -99,34 +89,30 @@ CREATE TABLE vehicles (
     veh_org_id INT,
     current_location VARCHAR(100),
     veh_status ENUM('available', 'in-use', 'maintenance') NOT NULL,
-    vehicle_specifications varchar(100),
+    vehicle_specifications VARCHAR(100),
     driver_name VARCHAR(100),
     driver_contact VARCHAR(20),
-    user_id int,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (veh_org_id) REFERENCES organizations(organization_id)
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (veh_org_id) REFERENCES Organizations(organization_id)
 );
 
--- Hospitals table
+-- Hospitals Table
 CREATE TABLE Hospitals (
-    hospital_id INT PRIMARY KEY AUTO_INCREMENT,
+    hospital_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     capacity INT,
     current_occupancy INT DEFAULT 0,
     contact_person VARCHAR(50),
     phone VARCHAR(20),
     email VARCHAR(100),
-    location varchar(100),
+    location VARCHAR(100),
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-select * from hospitals;
-insert into hospitals(name,capacity,current_occupancy,contact_person,phone,email,location,registration_date) 
-values('hos3',10,3,'ddd','123','ddd@gmail.com','mng',now());
 
-
--- Table for Shelters/Houses
+-- Shelters Table
 CREATE TABLE Shelters (
-    shelter_id INT PRIMARY KEY AUTO_INCREMENT,
+    shelter_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     capacity INT,
     current_occupancy INT DEFAULT 0,
@@ -137,30 +123,32 @@ CREATE TABLE Shelters (
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Resources table 
-Create table Resources(
-id int primary key auto_increment,
-resource_id int,
-quantity int,
-unit varchar(15),
-expiry_date date,
-location varchar(100),
-foreign key (resource_id) references resourcetype (resource_id)
+-- Resources Table
+CREATE TABLE Resources (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    resource_id INT,
+    quantity INT,
+    unit VARCHAR(15),
+    expiry_date DATE,
+    location VARCHAR(100),
+    FOREIGN KEY (resource_id) REFERENCES ResourceType(resource_id)
 );
 
-insert into resources values(1,10,'box','2025-5-5','bengaluru');
-insert into resources(resource_id,quantity,unit,expiry_date,location) values(4,10,'box','2025-5-5','bengaluru');
+-- Insert example resource
+INSERT INTO Resources(resource_id, quantity, unit, expiry_date, location)
+VALUES (4, 10, 'box', '2025-05-05', 'Bengaluru');
 
-select * from vehicles;
+-- Relief Centers Table
+CREATE TABLE ReliefCenters (
+    id INT PRIMARY KEY,
+    hos_id INT,
+    res_id INT,
+    shel_id INT,
+    FOREIGN KEY (hos_id) REFERENCES Hospitals(hospital_id),
+    FOREIGN KEY (res_id) REFERENCES Resources(id),
+    FOREIGN KEY (shel_id) REFERENCES Shelters(shelter_id)
+);
 
-create table reliefcenters(
-id int primary key,
-hos_id int,
-res_id int,
-shel_id int,
-foreign key (hos_id) references hospitals(hospital_id),
-foreign key (res_id) references resources(id),
-foreign key (shel_id) references shelters(shelter_id));
 
 
 
